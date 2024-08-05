@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.terabyte.jetpackweather.screens.MainScreen
 import com.terabyte.jetpackweather.ui.theme.JetpackWeatherTheme
 import org.json.JSONObject
 
@@ -38,71 +39,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             JetpackWeatherTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("London", this)
-                }
+                MainScreen()
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, context: Context) {
-    val state = remember {
-        mutableStateOf("Unknown")
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxHeight(0.5f)
-                .fillMaxWidth()
-        ) {
-            Text(text = "Temp in $name = ${state.value} °C")
-        }
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
-        ) {
-            Button(
-                onClick = {
-                    getResult(name, state, context)
-                },
-                modifier = Modifier
-                    .padding(5.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(text = "Refresh")
-            }
-        }
-    }
-}
-
-private fun getResult(city: String, state: MutableState<String>, context: Context) {
-    val url = "http://api.weatherapi.com/v1/current.json?key=$API_KEY&q=$city&api=no"
-
-    val queue = Volley.newRequestQueue(context)
-    val stringRequest = StringRequest(
-        Request.Method.GET,
-        url,
-        { response ->
-            val obj = JSONObject(response)
-            state.value = obj.getJSONObject("current").getString("temp_c")
-        },
-        { error ->
-            Log.d(LOG_MY_DEBUG, "Error $error")
-        }
-    )
-    queue.add(stringRequest)
-
-}

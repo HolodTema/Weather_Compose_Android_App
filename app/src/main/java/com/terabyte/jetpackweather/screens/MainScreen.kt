@@ -1,5 +1,6 @@
 package com.terabyte.jetpackweather.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,10 +53,15 @@ fun MainScreen() {
             .padding(5.dp)
     ) {
         Card(
+            colors = CardDefaults.cardColors(
+                containerColor = Color.Transparent
+            ),
+            border = BorderStroke(1.dp, Color.White),
             shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth()
-                .background(color = BlueLight)
+                .padding(6.dp)
+
         ) {
             Column(
                 modifier = Modifier
@@ -75,10 +86,61 @@ fun MainScreen() {
                     AsyncImage(
                         model = "https://cdn.weatherapi.com/weather/64x64/night/113.png",
                         contentDescription = "weatherIcon",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(35.dp)
+                            .size(55.dp)
                             .padding(end = 8.dp, top = 3.dp)
                     )
+                }
+                Text(
+                    text = "Irkutsk",
+                    style = TextStyle(fontSize = 24.sp),
+                    color = Color.White
+                )
+                Text(
+                    text = "21°C",
+                    style = TextStyle(fontSize = 65.sp),
+                    color = Color.White
+                )
+                Text(
+                    text = "Sunny",
+                    style = TextStyle(fontSize = 16.sp),
+                    color = Color.White
+                )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    IconButton(
+                        onClick = {
+
+                        },
+
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_search),
+                            contentDescription = "iconButton",
+                            tint = Color.White
+                        )
+                    }
+                    Text(
+                        text = "Min/Max: 23C / 12C",
+                        style = TextStyle(fontSize = 16.sp),
+                        color = Color.White
+                    )
+                    IconButton(
+                        onClick = {
+
+                        },
+
+                        ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_sync),
+                            contentDescription = "iconSync",
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +39,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.terabyte.jetpackweather.R
+import com.terabyte.jetpackweather.data.WeatherModel
 import com.terabyte.jetpackweather.ui.theme.BlueLight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -149,7 +151,7 @@ fun MainCard() {
 
 
 @OptIn(ExperimentalPagerApi::class)
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0x00000L)
 @Composable
 fun TabLayout() {
     val tabList = listOf("HOURS", "DAYS")
@@ -199,8 +201,31 @@ fun TabLayout() {
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                items(15) {
-                    ListItem()
+                itemsIndexed(
+                    listOf(
+                        WeatherModel(
+                            "London",
+                            "21:00",
+                            "21",
+                            "Clouds",
+                            "//cdn.weatherapi.com/weather/64x64/day/176.png",
+                            "",
+                            "",
+                            ""
+                        ),
+                        WeatherModel(
+                            "London",
+                            "26/07/2024",
+                            "",
+                            "Rain",
+                            "//cdn.weatherapi.com/weather/64x64/day/176.png",
+                            "26",
+                            "20",
+                            "lkhlklhlkjhlji"
+                        )
+                    )
+                ) { _, item ->
+                    ListItem(item)
                 }
             }
         }

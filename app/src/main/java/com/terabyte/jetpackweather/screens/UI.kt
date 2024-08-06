@@ -21,10 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.terabyte.jetpackweather.data.WeatherModel
 
-@Preview(showBackground = true)
 @Composable
-fun ListItem() {
+fun ListItem(item: WeatherModel) {
     Card(
         border = BorderStroke(1.dp, Color.White),
         shape = RoundedCornerShape(5.dp),
@@ -33,7 +33,7 @@ fun ListItem() {
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 3.dp)
+            .padding(top = 5.dp)
     ) {
         Row(
             modifier = Modifier
@@ -47,23 +47,25 @@ fun ListItem() {
                     .padding(start = 8.dp, top = 5.dp, bottom = 5.dp)
             ) {
                 Text(
-                    text = "12:00",
+                    text = item.time,
                     color = Color.White
                 )
                 Text(
-                    text = "Sunny",
+                    text = item.conditionText,
                     color = Color.White
                 )
             }
 
             Text(
-                text = "28°C",
+                text = item.currentTemp.ifEmpty {
+                    "Min: ${item.minTemp}°C / Max: ${item.maxTemp}°C"
+                },
                 color = Color.White,
-                style = TextStyle(fontSize = 22.sp)
+                style = TextStyle(fontSize = 20.sp)
             )
 
             AsyncImage(
-                model = "https://cdn.weatherapi.com/weather/64x64/night/113.png",
+                model = "https:${item.conditionIconUrl}",
                 contentDescription = "weatherIconInListItem",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

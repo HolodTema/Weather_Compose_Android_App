@@ -45,6 +45,8 @@ import com.terabyte.jetpackweather.ui.theme.BlueLight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.internal.wait
+import org.json.JSONArray
+import org.json.JSONObject
 
 
 @Composable
@@ -69,7 +71,7 @@ fun MainCard(currentDay: MutableState<WeatherModel>) {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
 
-            ) {
+                ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -99,7 +101,13 @@ fun MainCard(currentDay: MutableState<WeatherModel>) {
                     color = Color.White
                 )
                 Text(
-                    text = "${currentDay.value.currentTemp.toFloat().toInt()}°C",
+                    text = if(currentDay.value.currentTemp.isNotEmpty()) {
+                        "${currentDay.value.currentTemp.toFloat().toInt()}°C"
+                    } else {
+                        "Min/Max: ${
+                            currentDay.value.minTemp.toFloat().toInt()
+                        }°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C"
+                    },
                     style = TextStyle(fontSize = 65.sp),
                     color = Color.White
                 )
@@ -118,7 +126,7 @@ fun MainCard(currentDay: MutableState<WeatherModel>) {
 
                         },
 
-                    ) {
+                        ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_search),
                             contentDescription = "iconButton",
@@ -126,7 +134,9 @@ fun MainCard(currentDay: MutableState<WeatherModel>) {
                         )
                     }
                     Text(
-                        text = "Min/Max: ${currentDay.value.minTemp.toFloat().toInt()}°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C",
+                        text = "Min/Max: ${
+                            currentDay.value.minTemp.toFloat().toInt()
+                        }°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C",
                         style = TextStyle(fontSize = 16.sp),
                         color = Color.White
                     )
@@ -152,7 +162,7 @@ fun MainCard(currentDay: MutableState<WeatherModel>) {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TabLayout(daysList: MutableState<List<WeatherModel>>) {
+fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableState<WeatherModel>) {
     val tabList = listOf("HOURS", "DAYS")
     val pagerState = rememberPagerState()
     val tabIndex = pagerState.currentPage
@@ -196,16 +206,35 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>) {
             modifier = Modifier
                 .weight(1f)
         ) { index ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                itemsIndexed(
-                    daysList.value
-                ) { _, item ->
-                    ListItem(item)
-                }
+            val list = when(index) {
+                0 -> getWeatherByHours(currentDay.value.hours)
+                1 -> daysList.value
+                else -> daysList.value
             }
+            MainList(list, currentDay)
         }
     }
+}
+
+private fun getWeatherByHours(hours: String): List<WeatherModel> {
+    if(hours.isEmpty()) return listOf()
+
+    val hoursArray = JSONArray(hours)
+    val result = arrayListOf<WeatherModel>()
+    for(i in 0 until hoursArray.length()) {
+        val item = hoursArray[i] as JSONObject
+        result.add(
+            WeatherModel(
+                "",
+                item.getString("time"),
+                item.getString("temp_c").toFloat().toInt().toString(),
+                item.getJSONObject("condition").getString("text"),
+                item.getJSONObject("condition").getString("icon"),
+                "",
+                "",
+                ""
+            )
+        )
+    }
+    return result
 }

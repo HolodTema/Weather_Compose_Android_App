@@ -35,7 +35,23 @@ class MainActivity : ComponentActivity() {
                 val daysList = remember {
                     mutableStateOf(listOf<WeatherModel>())
                 }
-                getData("London", this, daysList)
+                val currentDay = remember {
+                    mutableStateOf(
+                        WeatherModel
+                        (
+                            "Loading...",
+                                "",
+                            "0",
+                            "",
+                            "",
+                            "0",
+                            "0",
+                            ""
+                        )
+                    )
+                }
+
+                getData("London", this, daysList, currentDay)
                 Image(
                     painter = painterResource(id = R.drawable.main_screen_background),
                     contentDescription = "background",
@@ -45,7 +61,7 @@ class MainActivity : ComponentActivity() {
                 )
                 Column {
 
-                    MainCard()
+                    MainCard(currentDay)
                     TabLayout(daysList)
                 }
             }
@@ -55,7 +71,7 @@ class MainActivity : ComponentActivity() {
 
 
 //Business Logic part
-private fun getData(city: String, context: Context, daysList: MutableState<List<WeatherModel>>) {
+private fun getData(city: String, context: Context, daysList: MutableState<List<WeatherModel>>, currentDay: MutableState<WeatherModel>) {
     //https://api.weatherapi.com/ is base url. Other is called path
     val url = "https://api.weatherapi.com/" +
             "v1/forecast.json" +
@@ -72,6 +88,8 @@ private fun getData(city: String, context: Context, daysList: MutableState<List<
             Log.d(LOG_MY_DEBUG, "Volley response: $response")
             val listWeatherByDays = getWeatherByDays(response)
             daysList.value = listWeatherByDays
+
+            currentDay.value = listWeatherByDays[0]
         },
         { error ->
             Log.d(LOG_MY_DEBUG, "Volley error in getData(): $error")

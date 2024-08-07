@@ -19,6 +19,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.terabyte.jetpackweather.data.WeatherModel
+import com.terabyte.jetpackweather.screens.DialogSearch
 import com.terabyte.jetpackweather.screens.MainCard
 import com.terabyte.jetpackweather.screens.TabLayout
 import com.terabyte.jetpackweather.ui.theme.JetpackWeatherTheme
@@ -51,6 +52,16 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+                val dialogState = remember {
+                    mutableStateOf(false)
+                }
+                if(dialogState.value) {
+                    DialogSearch(dialogState) {
+                        getData(it, this@MainActivity, daysList, currentDay)
+                    }
+                }
+
+
                 getData("London", this, daysList, currentDay)
                 Image(
                     painter = painterResource(id = R.drawable.main_screen_background),
@@ -61,7 +72,15 @@ class MainActivity : ComponentActivity() {
                 )
                 Column {
 
-                    MainCard(currentDay)
+                    MainCard(
+                        currentDay = currentDay,
+                        onClickSync = {
+                            getData("London", this@MainActivity, daysList, currentDay)
+                        },
+                        onClickSearch = {
+                            dialogState.value = true
+                        }
+                    )
                     TabLayout(daysList, currentDay)
                 }
             }

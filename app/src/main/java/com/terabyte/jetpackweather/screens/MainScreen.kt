@@ -5,8 +5,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +27,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +36,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -48,13 +56,10 @@ import okhttp3.internal.wait
 import org.json.JSONArray
 import org.json.JSONObject
 
-
+@Preview(showBackground = true, backgroundColor = 0x000000)
 @Composable
-fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, onClickSearch: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .padding(5.dp)
-    ) {
+fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit = {}, onClickSearch: () -> Unit = {}) {
+    Column{
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = Color.Transparent
@@ -63,13 +68,16 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(6.dp)
+                .height(250.dp)
+                .padding(10.dp)
+
 
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
 
                 ) {
                 Row(
@@ -98,7 +106,9 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
                 Text(
                     text = currentDay.value.city,
                     style = TextStyle(fontSize = 24.sp),
-                    color = Color.White
+                    color = Color.White,
+                    modifier = Modifier
+                        .offset(y = -12.dp)
                 )
                 Text(
                     text = if(currentDay.value.currentTemp.isNotEmpty()) {
@@ -108,7 +118,12 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
                             currentDay.value.minTemp.toFloat().toInt()
                         }°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C"
                     },
-                    style = TextStyle(fontSize = 65.sp),
+                    style = if(currentDay.value.currentTemp.isNotEmpty()) {
+                        TextStyle(fontSize = 65.sp)
+                    }
+                    else {
+                        TextStyle(fontSize = 30.sp, textAlign = TextAlign.Center)
+                    },
                     color = Color.White
                 )
                 Text(
@@ -158,11 +173,10 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
 
 }
 
-
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableState<WeatherModel>) {
-    val tabList = listOf("HOURS", "DAYS")
+fun TabLayout(daysList: MutableState<List<WeatherModel>>, @PreviewParameter(CurrentDayProvider::class) currentDay: MutableState<WeatherModel>) {
+    val tabList = listOf("Hours", "Days")
     val pagerState = rememberPagerState()
     val tabIndex = pagerState.currentPage
 
@@ -170,7 +184,7 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableSta
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(5.dp))
-            .padding(start = 5.dp, end = 5.dp)
+            .padding(start = 10.dp, end = 10.dp)
     ) {
         TabRow(
             selectedTabIndex = tabIndex,
@@ -180,8 +194,8 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableSta
                         .tabIndicatorOffset(pos[tabIndex])
                 )
             },
-            containerColor = BlueLight,
-            contentColor = Color.White
+            containerColor = Color.Transparent,
+            contentColor = Color.White,
         ) {
             tabList.forEachIndexed { index, text ->
                 Tab(
@@ -236,4 +250,22 @@ private fun getWeatherByHours(hours: String): List<WeatherModel> {
         )
     }
     return result
+}
+
+class CurrentDayProvider: PreviewParameterProvider<MutableState<WeatherModel>> {
+    override val values: Sequence<MutableState<WeatherModel>>
+        get() = sequenceOf(
+                mutableStateOf(
+                    WeatherModel(
+                        "London",
+                        "2024-08-09 13:15",
+                        "33",
+                        "Patchy rain nearby",
+                        "https://cdn.weatherapi.com/weather/64x64/night/116.png",
+                        "14",
+                        "21",
+                        ""
+                    )
+                )
+        )
 }

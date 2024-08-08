@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -66,16 +68,23 @@ fun ListItem(item: WeatherModel, currentDay: MutableState<WeatherModel>) {
                 )
                 Text(
                     text = item.conditionText,
-                    color = Color.White
+                    color = Color.White,
+                    style = TextStyle(fontSize = 16.sp)
                 )
             }
 
             Text(
-                text = item.currentTemp.ifEmpty {
-                    "Min: ${item.minTemp}°C / Max: ${item.maxTemp}°C"
-                },
+                text = if(item.currentTemp.isEmpty()) {
+                    "Min/Max: ${item.minTemp.toFloat().toInt()}°C / ${item.maxTemp.toFloat().toInt()}°C"
+                } else {
+                   "${item.currentTemp.toFloat().toInt()}°C"
+               },
                 color = Color.White,
-                style = TextStyle(fontSize = 20.sp)
+                style = if(item.currentTemp.isEmpty()) {
+                    TextStyle(fontSize = 16.sp)
+                } else {
+                    TextStyle(fontSize = 20.sp)
+                }
             )
 
             AsyncImage(
@@ -143,7 +152,8 @@ fun DialogSearch(dialogState: MutableState<Boolean>, onApplyListener: (city: Str
                     value = dialogText.value,
                     onValueChange = {
                         dialogText.value = it
-                    }
+                    },
+                    singleLine = true
                 )
             }
         }
@@ -151,7 +161,21 @@ fun DialogSearch(dialogState: MutableState<Boolean>, onApplyListener: (city: Str
 }
 
 
-
+class WeatherModelProvider: PreviewParameterProvider<WeatherModel> {
+    override val values: Sequence<WeatherModel>
+        get() = sequenceOf(
+            WeatherModel(
+                "London",
+                "2024-08-09 13:15",
+                "33",
+                "Patchy rain nearby",
+                "https://cdn.weatherapi.com/weather/64x64/night/116.png",
+                "14",
+                "21",
+                ""
+            )
+        )
+}
 
 
 

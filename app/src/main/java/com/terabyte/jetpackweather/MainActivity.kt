@@ -2,7 +2,6 @@ package com.terabyte.jetpackweather
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -15,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.terabyte.jetpackweather.data.WeatherModel
@@ -23,7 +21,13 @@ import com.terabyte.jetpackweather.screens.DialogSearch
 import com.terabyte.jetpackweather.screens.MainCard
 import com.terabyte.jetpackweather.screens.TabLayout
 import com.terabyte.jetpackweather.ui.theme.JetpackWeatherTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import timber.log.Timber
 
 
 const val API_KEY = "1346c16f37d64d28bc2194344240507"
@@ -62,7 +66,7 @@ class MainActivity : ComponentActivity() {
                 }
 
 
-                getData("London", this, daysList, currentDay)
+                getData(CITY_DEFAULT, this, daysList, currentDay)
                 Image(
                     painter = painterResource(id = R.drawable.main_screen_background),
                     contentDescription = "background",
@@ -104,14 +108,18 @@ private fun getData(city: String, context: Context, daysList: MutableState<List<
         Request.Method.GET,
         url,
         { response ->
-            Log.d(LOG_MY_DEBUG, "Volley response: $response")
-            val listWeatherByDays = getWeatherByDays(response)
-            daysList.value = listWeatherByDays
-
-            currentDay.value = listWeatherByDays[0]
+            Timber.i("Volley response: $response")
+            CoroutineScope(Dispatchers.Main).launch {
+                val deferredListWeatherByDays = async(Dispatchers.IO) {
+                    return@async getWeatherByDays(response)
+                }
+                val listWeatherByDays = deferredListWeatherByDays.await()
+                daysList.value = listWeatherByDays
+                currentDay.value = listWeatherByDays[0]
+            }
         },
         { error ->
-            Log.d(LOG_MY_DEBUG, "Volley error in getData(): $error")
+            Timber.e("Volley error: $error")
         }
     )
     queue.add(stringRequest)

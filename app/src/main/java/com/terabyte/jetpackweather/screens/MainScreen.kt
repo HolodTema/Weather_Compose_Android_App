@@ -1,20 +1,15 @@
 package com.terabyte.jetpackweather.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,7 +22,6 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,20 +33,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.terabyte.jetpackweather.R
 import com.terabyte.jetpackweather.data.WeatherModel
-import com.terabyte.jetpackweather.ui.theme.BlueLight
-import kotlinx.coroutines.CoroutineScope
+import com.terabyte.jetpackweather.json.JsonManager
+import com.terabyte.jetpackweather.json.JsonManager.getWeatherByHours
+import com.terabyte.jetpackweather.ui.MainList
+import com.terabyte.jetpackweather.ui.preview.CurrentDayProvider
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -175,7 +168,7 @@ fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableSta
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TabLayout(daysList: MutableState<List<WeatherModel>>, @PreviewParameter(CurrentDayProvider::class) currentDay: MutableState<WeatherModel>) {
+fun TabLayout(daysList: MutableState<List<WeatherModel>>, hoursList: MutableState<List<WeatherModel>>, @PreviewParameter(CurrentDayProvider::class) currentDay: MutableState<WeatherModel>) {
     val tabList = listOf("Hours", "Days")
     val pagerState = rememberPagerState()
     val tabIndex = pagerState.currentPage
@@ -219,8 +212,11 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, @PreviewParameter(Curr
             modifier = Modifier
                 .weight(1f)
         ) { index ->
+            JsonManager.getWeatherByHours(currentDay.value.hours) {
+                hoursList.value = it
+            }
             val list = when(index) {
-                0 -> getWeatherByHours(currentDay.value.hours)
+                0 -> hoursList.value
                 1 -> daysList.value
                 else -> daysList.value
             }
@@ -229,43 +225,5 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, @PreviewParameter(Curr
     }
 }
 
-private fun getWeatherByHours(hours: String): List<WeatherModel> {
-    if(hours.isEmpty()) return listOf()
 
-    val hoursArray = JSONArray(hours)
-    val result = arrayListOf<WeatherModel>()
-    for(i in 0 until hoursArray.length()) {
-        val item = hoursArray[i] as JSONObject
-        result.add(
-            WeatherModel(
-                "",
-                item.getString("time"),
-                item.getString("temp_c").toFloat().toInt().toString(),
-                item.getJSONObject("condition").getString("text"),
-                item.getJSONObject("condition").getString("icon"),
-                "",
-                "",
-                ""
-            )
-        )
-    }
-    return result
-}
 
-class CurrentDayProvider: PreviewParameterProvider<MutableState<WeatherModel>> {
-    override val values: Sequence<MutableState<WeatherModel>>
-        get() = sequenceOf(
-                mutableStateOf(
-                    WeatherModel(
-                        "London",
-                        "2024-08-09 13:15",
-                        "33",
-                        "Patchy rain nearby",
-                        "https://cdn.weatherapi.com/weather/64x64/night/116.png",
-                        "14",
-                        "21",
-                        ""
-                    )
-                )
-        )
-}

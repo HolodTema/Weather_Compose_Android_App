@@ -1,4 +1,4 @@
-package com.terabyte.jetpackweather.screens
+package com.terabyte.jetpackweather.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -28,8 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -99,6 +97,7 @@ fun ListItem(item: WeatherModel, currentDay: MutableState<WeatherModel>) {
     }
 }
 
+
 @Composable
 fun MainList(list: List<WeatherModel>, currentDay: MutableState<WeatherModel>) {
     LazyColumn(
@@ -112,6 +111,7 @@ fun MainList(list: List<WeatherModel>, currentDay: MutableState<WeatherModel>) {
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -161,21 +161,7 @@ fun DialogSearch(dialogState: MutableState<Boolean>, onApplyListener: (city: Str
 }
 
 
-class WeatherModelProvider: PreviewParameterProvider<WeatherModel> {
-    override val values: Sequence<WeatherModel>
-        get() = sequenceOf(
-            WeatherModel(
-                "London",
-                "2024-08-09 13:15",
-                "33",
-                "Patchy rain nearby",
-                "https://cdn.weatherapi.com/weather/64x64/night/116.png",
-                "14",
-                "21",
-                ""
-            )
-        )
-}
+
 
 
 

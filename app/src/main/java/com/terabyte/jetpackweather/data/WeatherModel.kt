@@ -19,4 +19,23 @@ data class WeatherModel(
     //if we use WeatherModel for a certain day,
     // then we will use hours val for every-hour forecast
     val hours: String
-)
+) {
+    companion object {
+        fun createEmptyWeatherModelForMainCard(): WeatherModel {
+            //this fun creates object with empty fields
+            //to use it in @Preview in JetpackCompose or in mutableStateOf init
+            //and this object will be used in MainCard @Composable fun in the beginning of the app
+            //during requesting info from the server.
+            return WeatherModel (
+                    "Loading...",
+            "",
+            "0",
+            "",
+            "",
+            "0",
+            "0",
+            ""
+            )
+        }
+    }
+}

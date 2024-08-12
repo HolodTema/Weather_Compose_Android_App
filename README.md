@@ -1,5 +1,5 @@
 # Weather Jetpack Compose Android application
-I created this project to learn Jetpack Compose using NECO RU videous on Youtube.<br>
+I created this project to learn Jetpack Compose using NECO RU videos on Youtube.<br>
 (see: <https://www.youtube.com/@NecoRuChannel> )<br>
 
 All the data of weather forecast is gotten from <https://www.weatherapi.com/>

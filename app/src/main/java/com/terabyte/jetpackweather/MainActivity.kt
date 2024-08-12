@@ -13,11 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.terabyte.jetpackweather.data.ShPreferencesManager
 import com.terabyte.jetpackweather.data.WeatherModel
 import com.terabyte.jetpackweather.json.JsonManager
-import com.terabyte.jetpackweather.ui.DialogSearch
 import com.terabyte.jetpackweather.screens.MainCard
 import com.terabyte.jetpackweather.screens.TabLayout
+import com.terabyte.jetpackweather.ui.DialogSearch
 import com.terabyte.jetpackweather.ui.theme.JetpackWeatherTheme
 import com.terabyte.jetpackweather.volley.VolleyManager.getData
 import kotlin.random.Random
@@ -31,6 +32,8 @@ class MainActivity : ComponentActivity() {
 
         val image = chooseBackgroundImage()
 
+        val city = ShPreferencesManager.getCity(this)
+
         setContent {
             JetpackWeatherTheme {
                 val daysList = remember {
@@ -43,7 +46,6 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(WeatherModel.createEmptyWeatherModelForMainCard())
                 }
 
-
                 val dialogState = remember {
                     mutableStateOf(false)
                 }
@@ -53,7 +55,7 @@ class MainActivity : ComponentActivity() {
 
                 DrawMainActivity(currentDay, daysList, hoursList, dialogState, image)
 
-                getData(CITY_DEFAULT, this, daysList, currentDay) { response ->
+                getData(city, this, daysList, currentDay) { response ->
                     JsonManager.getWeatherByDays(response) { listWeatherByDays ->
                         daysList.value = listWeatherByDays
                         currentDay.value = listWeatherByDays[0]
@@ -96,8 +98,9 @@ class MainActivity : ComponentActivity() {
         }
 
         if(dialogState.value) {
-            DialogSearch(dialogState) {
-                getData(it, this@MainActivity, daysList, currentDay) {response ->
+            DialogSearch(dialogState) { city ->
+                ShPreferencesManager.setCity(this, city)
+                getData(city, this@MainActivity, daysList, currentDay) {response ->
                     JsonManager.getWeatherByDays(response) { listWeatherByDays ->
                         daysList.value = listWeatherByDays
                         currentDay.value = listWeatherByDays[0]

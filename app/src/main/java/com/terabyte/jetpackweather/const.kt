@@ -9,3 +9,5 @@ const val URL_WEATHER_FORECAST = "https://api.weatherapi.com/v1/forecast.json"
 //The city which weather info will be gotten from server when the app starts
 const val CITY_DEFAULT = "Irkutsk"
 
+const val SHARED_PREFERENCES_NAME = "sharedPreferences"
+

@@ -1,16 +1,15 @@
 package com.terabyte.jetpackweather.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,34 +26,34 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.terabyte.jetpackweather.R
 import com.terabyte.jetpackweather.data.WeatherModel
-import com.terabyte.jetpackweather.ui.theme.BlueLight
-import kotlinx.coroutines.CoroutineScope
+import com.terabyte.jetpackweather.json.JsonManager
+import com.terabyte.jetpackweather.ui.MainList
+import com.terabyte.jetpackweather.ui.preview.CurrentDayProvider
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
-import org.json.JSONArray
-import org.json.JSONObject
 
-
+@Preview(showBackground = true, backgroundColor = 0x000000)
 @Composable
-fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, onClickSearch: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .padding(5.dp)
-    ) {
+fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit = {}, onClickSearch: () -> Unit = {}) {
+    Column{
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = Color.Transparent
@@ -63,13 +62,16 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(6.dp)
+                .height(250.dp)
+                .padding(10.dp)
+
 
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
 
                 ) {
                 Row(
@@ -83,9 +85,15 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
                         text = currentDay.value.time,
                         style = TextStyle(
                             fontSize = 15.sp,
-                            color = Color.White
+                            color = Color.White,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
                         )
                     )
+
                     AsyncImage(
                         model = "https:${currentDay.value.conditionIconUrl}",
                         contentDescription = "weatherIcon",
@@ -97,8 +105,17 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
                 }
                 Text(
                     text = currentDay.value.city,
-                    style = TextStyle(fontSize = 24.sp),
-                    color = Color.White
+                    style = TextStyle(
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        ),
+                        fontSize = 24.sp
+                    ),
+                    color = Color.White,
+                    modifier = Modifier
+                        .offset(y = -12.dp)
                 )
                 Text(
                     text = if(currentDay.value.currentTemp.isNotEmpty()) {
@@ -108,12 +125,39 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
                             currentDay.value.minTemp.toFloat().toInt()
                         }°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C"
                     },
-                    style = TextStyle(fontSize = 65.sp),
+                    style = if(currentDay.value.currentTemp.isNotEmpty()) {
+                        TextStyle(
+                            fontSize = 65.sp,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
+                        )
+                    }
+                    else {
+                        TextStyle(
+                            fontSize = 30.sp,
+                            textAlign = TextAlign.Center,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
+                        )
+                    },
                     color = Color.White
                 )
                 Text(
                     text = currentDay.value.conditionText,
-                    style = TextStyle(fontSize = 16.sp),
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        )
+                    ),
                     color = Color.White
                 )
                 Row(
@@ -136,7 +180,14 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
                         text = "Min/Max: ${
                             currentDay.value.minTemp.toFloat().toInt()
                         }°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C",
-                        style = TextStyle(fontSize = 16.sp),
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
+                        ),
                         color = Color.White
                     )
                     IconButton(
@@ -148,7 +199,7 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
                         Icon(
                             painter = painterResource(id = R.drawable.ic_sync),
                             contentDescription = "iconSync",
-                            tint = Color.White
+                            tint = Color.White,
                         )
                     }
                 }
@@ -158,11 +209,10 @@ fun MainCard(currentDay: MutableState<WeatherModel>, onClickSync: () -> Unit, on
 
 }
 
-
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableState<WeatherModel>) {
-    val tabList = listOf("HOURS", "DAYS")
+fun TabLayout(daysList: MutableState<List<WeatherModel>>, hoursList: MutableState<List<WeatherModel>>, @PreviewParameter(CurrentDayProvider::class) currentDay: MutableState<WeatherModel>) {
+    val tabList = listOf("Hours", "Days")
     val pagerState = rememberPagerState()
     val tabIndex = pagerState.currentPage
 
@@ -170,7 +220,7 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableSta
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(5.dp))
-            .padding(start = 5.dp, end = 5.dp)
+            .padding(start = 10.dp, end = 10.dp)
     ) {
         TabRow(
             selectedTabIndex = tabIndex,
@@ -180,8 +230,8 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableSta
                         .tabIndicatorOffset(pos[tabIndex])
                 )
             },
-            containerColor = BlueLight,
-            contentColor = Color.White
+            containerColor = Color.Transparent,
+            contentColor = Color.White,
         ) {
             tabList.forEachIndexed { index, text ->
                 Tab(
@@ -193,7 +243,14 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableSta
                     },
                     text = {
                         Text(
-                            text = text
+                            text = text,
+                            style = TextStyle(
+                                shadow = Shadow(
+                                    color = DefaultShadowColor,
+                                    offset = Offset(4f, 4f),
+                                    blurRadius = 8f
+                                )
+                            )
                         )
                     }
                 )
@@ -205,8 +262,11 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableSta
             modifier = Modifier
                 .weight(1f)
         ) { index ->
+            JsonManager.getWeatherByHours(currentDay.value.hours) {
+                hoursList.value = it
+            }
             val list = when(index) {
-                0 -> getWeatherByHours(currentDay.value.hours)
+                0 -> hoursList.value
                 1 -> daysList.value
                 else -> daysList.value
             }
@@ -215,25 +275,5 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, currentDay: MutableSta
     }
 }
 
-private fun getWeatherByHours(hours: String): List<WeatherModel> {
-    if(hours.isEmpty()) return listOf()
 
-    val hoursArray = JSONArray(hours)
-    val result = arrayListOf<WeatherModel>()
-    for(i in 0 until hoursArray.length()) {
-        val item = hoursArray[i] as JSONObject
-        result.add(
-            WeatherModel(
-                "",
-                item.getString("time"),
-                item.getString("temp_c").toFloat().toInt().toString(),
-                item.getJSONObject("condition").getString("text"),
-                item.getJSONObject("condition").getString("icon"),
-                "",
-                "",
-                ""
-            )
-        )
-    }
-    return result
-}
+

@@ -20,12 +20,17 @@ import com.terabyte.jetpackweather.screens.MainCard
 import com.terabyte.jetpackweather.screens.TabLayout
 import com.terabyte.jetpackweather.ui.theme.JetpackWeatherTheme
 import com.terabyte.jetpackweather.volley.VolleyManager.getData
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val image = chooseBackgroundImage()
+
         setContent {
             JetpackWeatherTheme {
                 val daysList = remember {
@@ -37,11 +42,16 @@ class MainActivity : ComponentActivity() {
                 val currentDay = remember {
                     mutableStateOf(WeatherModel.createEmptyWeatherModelForMainCard())
                 }
+
+
                 val dialogState = remember {
                     mutableStateOf(false)
                 }
+                val backgroundImage = remember {
+                    mutableStateOf(0)
+                }
 
-                drawMainActivity(currentDay, daysList, hoursList, dialogState)
+                DrawMainActivity(currentDay, daysList, hoursList, dialogState, image)
 
                 getData(CITY_DEFAULT, this, daysList, currentDay) { response ->
                     JsonManager.getWeatherByDays(response) { listWeatherByDays ->
@@ -53,10 +63,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun chooseBackgroundImage(): Int {
+        val images = listOf(R.drawable.main_screen_background1, R.drawable.main_screen_background2, R.drawable.main_screen_background3)
+        return images[Random.nextInt(images.indices)]
+    }
     @Composable
-    private fun drawMainActivity(currentDay: MutableState<WeatherModel>, daysList: MutableState<List<WeatherModel>>, hoursList: MutableState<List<WeatherModel>>, dialogState: MutableState<Boolean>) {
+    private fun DrawMainActivity(currentDay: MutableState<WeatherModel>, daysList: MutableState<List<WeatherModel>>, hoursList: MutableState<List<WeatherModel>>, dialogState: MutableState<Boolean>, backgroundImage: Int) {
         Image(
-            painter = painterResource(id = R.drawable.main_screen_background),
+            painter = painterResource(id = backgroundImage),
             contentDescription = "background",
             contentScale = ContentScale.Crop,
             modifier = Modifier

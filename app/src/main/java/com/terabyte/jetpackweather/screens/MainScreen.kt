@@ -26,7 +26,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -42,12 +46,9 @@ import com.google.accompanist.pager.rememberPagerState
 import com.terabyte.jetpackweather.R
 import com.terabyte.jetpackweather.data.WeatherModel
 import com.terabyte.jetpackweather.json.JsonManager
-import com.terabyte.jetpackweather.json.JsonManager.getWeatherByHours
 import com.terabyte.jetpackweather.ui.MainList
 import com.terabyte.jetpackweather.ui.preview.CurrentDayProvider
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
 
 @Preview(showBackground = true, backgroundColor = 0x000000)
 @Composable
@@ -84,9 +85,15 @@ fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableSta
                         text = currentDay.value.time,
                         style = TextStyle(
                             fontSize = 15.sp,
-                            color = Color.White
+                            color = Color.White,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
                         )
                     )
+
                     AsyncImage(
                         model = "https:${currentDay.value.conditionIconUrl}",
                         contentDescription = "weatherIcon",
@@ -98,7 +105,14 @@ fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableSta
                 }
                 Text(
                     text = currentDay.value.city,
-                    style = TextStyle(fontSize = 24.sp),
+                    style = TextStyle(
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        ),
+                        fontSize = 24.sp
+                    ),
                     color = Color.White,
                     modifier = Modifier
                         .offset(y = -12.dp)
@@ -112,16 +126,38 @@ fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableSta
                         }°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C"
                     },
                     style = if(currentDay.value.currentTemp.isNotEmpty()) {
-                        TextStyle(fontSize = 65.sp)
+                        TextStyle(
+                            fontSize = 65.sp,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
+                        )
                     }
                     else {
-                        TextStyle(fontSize = 30.sp, textAlign = TextAlign.Center)
+                        TextStyle(
+                            fontSize = 30.sp,
+                            textAlign = TextAlign.Center,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
+                        )
                     },
                     color = Color.White
                 )
                 Text(
                     text = currentDay.value.conditionText,
-                    style = TextStyle(fontSize = 16.sp),
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        )
+                    ),
                     color = Color.White
                 )
                 Row(
@@ -144,7 +180,14 @@ fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableSta
                         text = "Min/Max: ${
                             currentDay.value.minTemp.toFloat().toInt()
                         }°C / ${currentDay.value.maxTemp.toFloat().toInt()}°C",
-                        style = TextStyle(fontSize = 16.sp),
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            shadow = Shadow(
+                                color = DefaultShadowColor,
+                                offset = Offset(4f, 4f),
+                                blurRadius = 8f
+                            )
+                        ),
                         color = Color.White
                     )
                     IconButton(
@@ -156,7 +199,7 @@ fun MainCard(@PreviewParameter(CurrentDayProvider::class) currentDay: MutableSta
                         Icon(
                             painter = painterResource(id = R.drawable.ic_sync),
                             contentDescription = "iconSync",
-                            tint = Color.White
+                            tint = Color.White,
                         )
                     }
                 }
@@ -200,7 +243,14 @@ fun TabLayout(daysList: MutableState<List<WeatherModel>>, hoursList: MutableStat
                     },
                     text = {
                         Text(
-                            text = text
+                            text = text,
+                            style = TextStyle(
+                                shadow = Shadow(
+                                    color = DefaultShadowColor,
+                                    offset = Offset(4f, 4f),
+                                    blurRadius = 8f
+                                )
+                            )
                         )
                     }
                 )

@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,14 +27,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.terabyte.jetpackweather.data.WeatherModel
+import org.w3c.dom.Text
 
 @Composable
 fun ListItem(item: WeatherModel, currentDay: MutableState<WeatherModel>) {
@@ -62,12 +69,26 @@ fun ListItem(item: WeatherModel, currentDay: MutableState<WeatherModel>) {
             ) {
                 Text(
                     text = item.time,
-                    color = Color.White
+                    color = Color.White,
+                    style = TextStyle(
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        )
+                    )
                 )
                 Text(
                     text = item.conditionText,
                     color = Color.White,
-                    style = TextStyle(fontSize = 16.sp)
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        )
+                    )
                 )
             }
 
@@ -79,9 +100,23 @@ fun ListItem(item: WeatherModel, currentDay: MutableState<WeatherModel>) {
                },
                 color = Color.White,
                 style = if(item.currentTemp.isEmpty()) {
-                    TextStyle(fontSize = 16.sp)
+                    TextStyle(
+                        fontSize = 16.sp,
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        )
+                    )
                 } else {
-                    TextStyle(fontSize = 20.sp)
+                    TextStyle(
+                        fontSize = 20.sp,
+                        shadow = Shadow(
+                            color = DefaultShadowColor,
+                            offset = Offset(4f, 4f),
+                            blurRadius = 8f
+                        )
+                    )
                 }
             )
 
@@ -106,8 +141,15 @@ fun MainList(list: List<WeatherModel>, currentDay: MutableState<WeatherModel>) {
     ) {
         itemsIndexed(
             list
-        ) { _, item ->
+        ) { index, item ->
             ListItem(item, currentDay)
+            if(index==list.size-1) {
+                Spacer(
+                    modifier =Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                )
+            }
         }
     }
 }
@@ -159,6 +201,7 @@ fun DialogSearch(dialogState: MutableState<Boolean>, onApplyListener: (city: Str
         }
     )
 }
+
 
 
 
